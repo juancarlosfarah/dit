@@ -977,7 +977,7 @@ class Distribution(ScalarDistribution):
 
         return d
 
-    def condition_on(self, crvs, rvs=None, rv_mode=None, extract=False):
+    def condition_on(self, crvs, rvs=None, rv_mode=None, extract=False, trim=True):
         """
         Returns distributions conditioned on random variables ``crvs``.
 
@@ -1005,6 +1005,10 @@ class Distribution(ScalarDistribution):
             If the length of either ``crvs`` or ``rvs`` is 1 and ``extract`` is
             ``True``, then instead of the new outcomes being 1-tuples, we
             extract the sole element to create scalar distributions.
+        trim : bool
+            Specifies if null-outcomes should be removed from pmf when
+            `make_sparse()` is called (assuming `sparse` is `True`) during
+            initialization.
 
         Returns
         -------
@@ -1096,7 +1100,8 @@ class Distribution(ScalarDistribution):
         for i, (coutcome, outcome) in enumerate(zip(coutcomes, outcomes)):
             pmfs[coutcome, outcome] = probs[i]
         dists = [Distribution(dist.outcomes, pmfs[i], sparse=sparse,
-                 base=base, sample_space=sample_space, validate=False)
+                 base=base, sample_space=sample_space, validate=False,
+                 trim=trim)
                  for i in range(pmfs.shape[0])]
 
         # Set the masks and r.v. names for each conditional distribution.
