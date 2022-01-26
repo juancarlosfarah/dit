@@ -850,7 +850,7 @@ class Distribution(ScalarDistribution):
         v &= validate_sequence(self.outcomes[0])
         return v
 
-    def coalesce(self, rvs, rv_mode=None, extract=False):
+    def coalesce(self, rvs, rv_mode=None, extract=False, trim=True):
         """
         Returns a new joint distribution after coalescing random variables.
 
@@ -878,6 +878,10 @@ class Distribution(ScalarDistribution):
             If the length of `rvs` is 1 and `extract` is `True`, then instead
             of the new outcomes being 1-tuples, we extract the sole element to
             create a joint distribution over the random variables in `rvs[0]`.
+        trim : bool
+            Specifies if null-outcomes should be removed from pmf when
+            `make_sparse()` is called (assuming `sparse` is `True`) during
+            initialization.
 
         Returns
         -------
@@ -967,7 +971,8 @@ class Distribution(ScalarDistribution):
                          sort=True,
                          sample_space=sample_space,
                          sparse=self.is_sparse(),
-                         validate=False)
+                         validate=False,
+                         trim=trim)
 
         # We do not set the rv names, since these are new random variables.
 
@@ -1263,7 +1268,7 @@ class Distribution(ScalarDistribution):
 
         return h
 
-    def marginal(self, rvs, rv_mode=None):
+    def marginal(self, rvs, rv_mode=None, trim=True):
         """
         Returns a marginal distribution.
 
@@ -1277,6 +1282,10 @@ class Distribution(ScalarDistribution):
             of `rvs` are interpreted as random variable indices. If equal to
             'names', the the elements are interpreted as random variable names.
             If `None`, then the value of `self._rv_mode` is consulted.
+        trim : bool
+            Specifies if null-outcomes should be removed from pmf when
+            `make_sparse()` is called (assuming `sparse` is `True`) during
+            initialization.
 
         Returns
         -------
@@ -1298,7 +1307,7 @@ class Distribution(ScalarDistribution):
         # one new random variable and it is composed of a strict subset of
         # the original random variables, with no duplicates, that maintains
         # the order of the original random variables.
-        d = self.coalesce([indexes], rv_mode=RV_MODES.INDICES, extract=True)
+        d = self.coalesce([indexes], rv_mode=RV_MODES.INDICES, extract=True, trim=trim)
 
         # Handle parts of d that are not settable through initialization.
 

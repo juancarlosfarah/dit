@@ -910,7 +910,7 @@ class RVFunctions(object):
         return func
 
 
-def product_distribution(dist, rvs=None, rv_mode=None, base=None):
+def product_distribution(dist, rvs=None, rv_mode=None, base=None, trim=True):
     """
     Returns a new distribution which is the product of marginals.
 
@@ -936,6 +936,11 @@ def product_distribution(dist, rvs=None, rv_mode=None, base=None):
 
     base : float, 'linear', 'e'
         The desired base for the distribution probabilities.
+
+    trim : bool
+        Specifies if null-outcomes should be removed from pmf when
+        `make_sparse()` is called (assuming `sparse` is `True`) during
+        initialization.
 
     Returns
     -------
@@ -968,7 +973,7 @@ def product_distribution(dist, rvs=None, rv_mode=None, base=None):
     if len(all_indexes) != len(set(all_indexes)):
         raise Exception('The elements of `rvs` have nonzero intersection.')
 
-    marginals = [dist.marginal(index_list, rv_mode=rv_mode) for index_list in indexes]
+    marginals = [dist.marginal(index_list, rv_mode=rv_mode, trim=trim) for index_list in indexes]
     ctor = dist._outcome_ctor
     ops = dist.ops
 
@@ -983,7 +988,7 @@ def product_distribution(dist, rvs=None, rv_mode=None, base=None):
         outcomes.append(ctor(outcome))
         pmf.append(ops.mult_reduce(prob))
 
-    d = Distribution(outcomes, pmf, validate=False)
+    d = Distribution(outcomes, pmf, validate=False, trim=trim)
 
     # Maybe we should use ditParams['base'] when base is None?
     if base is not None:
