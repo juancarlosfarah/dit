@@ -42,7 +42,7 @@ def outcome_iter(outcome_X, outcome_Y, mask_Y):
             yield next(it_Y)
 
 
-def joint_from_factors(mdist, cdists, strict=True):
+def joint_from_factors(mdist, cdists, strict=True, trim=True):
     """
     Returns a joint distribution P(X,Y) built from P(X) and P(Y|X).
 
@@ -59,6 +59,10 @@ def joint_from_factors(mdist, cdists, strict=True):
         an exception is raised. If ``False``, then the distributions are
         combined such that all of X appears before all of Y. Effectively, the
         existing masks are ignored in that situation.
+    trim : bool
+        Specifies if null-outcomes should be removed from pmf when
+        `make_sparse()` is called (assuming `sparse` is `True`) during
+        initialization.
 
     Returns
     -------
@@ -129,7 +133,7 @@ def joint_from_factors(mdist, cdists, strict=True):
         outcomes.extend(tmp)
 
     d = dit.Distribution(outcomes, list(XY_pmf.flat),
-                         sparse=True, trim=False)
+                         sparse=True, trim=trim)
 
     X_rv_names = mdist.get_rv_names()
     Y_rv_names = cdists[0].get_rv_names()
